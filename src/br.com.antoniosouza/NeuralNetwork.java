@@ -26,4 +26,8 @@ public class NeuralNetwork {
             outputLayer.add(-1 + (1 + 1) * random.nextDouble()); // generate a random number between -1 and 1.
         }
     }
+
+    private Double neuronActivation (double weigth, double input, double bias) {
+        return (weigth * input) + bias;
+    }
 }
