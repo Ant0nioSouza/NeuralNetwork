@@ -8,9 +8,11 @@ public class NeuralNetwork {
     private int nInputs, nHidden, nOutputs;
     private double hiddenBias, outputBias;
     private List<Double> newInputs = new ArrayList<Double>();
-    private Double[][] hiddenLayer;
-    private Double[][] outputLayer;
+    public Double[][] hiddenLayer;
+    public Double[][] outputLayer;
     private List<Double> inputLayer;
+    private List<Double> errors = new ArrayList<Double>();
+    private double neuronDelta;
     private Double[][][] network = new Double[2][0][0];
 
     /*
@@ -27,42 +29,75 @@ public class NeuralNetwork {
         outputLayer = new Double[nOutputs][4];
 
 
-        for (int i = 0; i < nHidden + 1; i++) {
+        for (int i = 0; i < nHidden; i++) {
             hiddenLayer[i][0] = (-1 + (1 + 1) * random.nextDouble()); // generate a random number between -1 and 1.
         }
-        for (int i = 0; i < nOutputs + 1; i++) {
+        for (int i = 0; i < nOutputs; i++) {
             outputLayer[i][0] = (-1 + (1 + 1) * random.nextDouble()); // generate a random number between -1 and 1.
         }
 
-        hiddenBias = hiddenLayer[nHidden][3];
-        outputBias = outputLayer[nOutputs][3];
+        hiddenBias = hiddenLayer[nHidden - 1][0];
+        outputBias = outputLayer[nOutputs - 1][0];
         network[0] = hiddenLayer;
         network[1] = outputLayer;
     }
 
-    private Double neuronActivation (double weigth, double input, double bias) {
-        return (weigth * input) + bias;
+    private Double neuronActivation (Double[][] layer, List<Double> input) {
+        System.out.println(layer[1][0] + "SIZE " + layer.length);
+        double activation = layer[layer.length-1][0];
+        for (int i = 0; i < layer.length - 1; i++) {
+            activation += layer[i][0] * input.get(i);
+        }
+        return activation;
     }
 
     private Double neuronTransfer (double activation) {
         return 1.0 / (1.0 + Math.exp(-activation));
     }
 
-    private void forwardPropagation() {
+    public void forwardPropagation() {
         
         for (Double[][] layer : network) {
-            for (int i = 0; i < layer.length - 1; i++) {
-                if (layer == network[1]) {
-                    for (int j = 0; j < inputLayer.size(); j++) {
-                        newInputs.add(neuronTransfer(neuronActivation(layer[i][0], inputLayer.get(j), hiddenBias)));
-                    }
-                } else if (layer == network[0]) {
-                    for (int j = 0; j < inputLayer.size(); j++) {
-                        newInputs.add(neuronTransfer(neuronActivation(layer[i][0], inputLayer.get(j), outputBias)));
-                    }
-                }
+            
+            for (int i = 0; i < layer.length; i++) {
+                System.out.println(layer);
+                System.out.println(inputLayer);
+                double activation = neuronActivation(layer, inputLayer);
+                layer[i][1] = neuronTransfer(activation);
+                newInputs.add(layer[i][1]);
             }
             inputLayer = newInputs;
         }
+    }
+    
+
+
+    public void backwardPropagateError(List<Double> expectedList) {
+        for (int i = 1; i > 0; i--) {
+            Double[][] layer = network[i];
+            if (i != network.length - 1) {
+                double error = 0.0;
+                for (int j = 0; j < layer.length; j++) {
+                    layer = network[i+1];
+                    error += layer[j][0] * layer[j][2];
+                }
+                errors.add(error);
+            } else {
+                for (int j = 0; j < layer.length; j++) {
+                    System.out.println("----------> " + layer[j][1] + " <--------");
+                    errors.add(expectedList.get(j) - layer[j][1]);
+                }
+            }
+            for (int j = 0; j < layer.length; j++) {
+                if (layer == hiddenLayer) {
+                    layer[j][2] = errors.get(j) * transferDerivative(layer[j][1]);
+                }
+            }
+            
+        }
+    }
+
+    private Double transferDerivative(double output) {
+        return output * (1.0 - output);
     }
 }
