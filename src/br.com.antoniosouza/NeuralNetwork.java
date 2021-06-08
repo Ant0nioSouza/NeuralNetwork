@@ -1,8 +1,18 @@
 import java.util.function.Function;
 
 public class NeuralNetwork {
-   public NeuralNetwork() {
+    int inputNodes;
+    int hiddenNodes;
+    int outputNodes;
+   public NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes) {
+        this.inputNodes = inputNodes;
+        this.hiddenNodes = hiddenNodes;
+        this.outputNodes = outputNodes;
 
+        Matrix biasIH = new Matrix(hiddenNodes, 1); // Bias from input to hidden layer.
+        biasIH.randomize();
+        Matrix biasHO = new Matrix(outputNodes, 1); // Bias from hidden to output layer.
+        biasHO.randomize();
    }
 }
 
@@ -18,14 +28,11 @@ class Matrix {
         this.cols = cols;
 
         data = new Double[rows][cols];
-        System.out.println("GENERATION VALUES +++++++++++++++++++++++");
         for (int i = 0; i < rows; i ++) {
             for (int j = 0; j < cols; j ++) {
                 data[i][j] = Math.floor(Math.random() * 10);
-                System.out.println("Data[" + i + "]" + "[" + j + "]: " + data[i][j] );
             }
         }
-        System.out.println("VALUES GENERATED!");
     }
 
     public Matrix add(Matrix A, Matrix B) {
@@ -33,8 +40,6 @@ class Matrix {
         for (int i = 0; i < A.cols; i++) {
             for (int j = 0; j < B.rows; j++) {
                 matrix.data[i][j] = A.data[i][j] + B.data[i][j];
-                System.out.println("AFTER SUM!");
-                System.out.println(A.data[i][j] + " | " + B.data[i][j] + " | " + matrix.data[i][j]); 
             }
         }
         return matrix;
@@ -43,7 +48,6 @@ class Matrix {
     public Matrix multiply(Matrix A, Matrix B) {
 
         if (A.data[0].length != B.data.length) {
-            System.out.println("Multiplication undefined!");
             return null;
         }
 
@@ -57,10 +61,16 @@ class Matrix {
                 for (int k = 0; k < A.data[0].length; k++) {
                     matrix.data[i][j] += (A.data[i][k] * B.data[k][j]);
                 }
-                System.out.println("Matrix data["+i+"]["+j+"]: "+matrix.data[i][j]);
         }
         return matrix;
     }
 
+    public void randomize() {
+        for (int i = 0; i < this.data.length; i ++) {
+            for (int j = 0; j < this.data[0].length; j ++) {
+                this.data[i][j] = Math.random();
+            }
+        }
+    }
 
 }
