@@ -4,15 +4,23 @@ public class NeuralNetwork {
     int inputNodes;
     int hiddenNodes;
     int outputNodes;
+
+    Matrix biasIH, biasHO, weigthsIH, weigthsHO;
+
    public NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes) {
         this.inputNodes = inputNodes;
         this.hiddenNodes = hiddenNodes;
         this.outputNodes = outputNodes;
 
-        Matrix biasIH = new Matrix(hiddenNodes, 1); // Bias from input to hidden layer.
+        biasIH = new Matrix(hiddenNodes, 1); // Bias from input to hidden layer.
         biasIH.randomize();
-        Matrix biasHO = new Matrix(outputNodes, 1); // Bias from hidden to output layer.
+        biasHO = new Matrix(outputNodes, 1); // Bias from hidden to output layer.
         biasHO.randomize();
+
+        weigthsIH = new Matrix(hiddenNodes, inputNodes);
+        weigthsIH.randomize();
+        weigthsHO = new Matrix (outputNodes, hiddenNodes);
+        weigthsHO.randomize();
    }
 }
 
