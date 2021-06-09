@@ -77,6 +77,18 @@ class Matrix {
         }
     }
 
+    public Matrix hadamard(Matrix A, Matrix B) {
+        matrix = new Matrix(A.rows, A.cols);
+
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < B.cols; j++) {
+                matrix.data[i][j] = A.data[i][j] * B.data[i][j];
+            }
+        }
+        return matrix;
+    }
+
+
     public Matrix add(Matrix A, Matrix B) {
         matrix = new Matrix(A.rows, A.cols);
 
