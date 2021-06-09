@@ -23,8 +23,8 @@ public class NeuralNetwork {
         weigthsHO.randomize();
    }
 
-    public void FeedForward(Matrix input) {
-       if (input.data.length != inputNodes) {
+    public void train() {
+        if (input.data.length != inputNodes) {
             System.out.println("Data error adjust input nodes!");
             return;
        }
@@ -72,7 +72,7 @@ class Matrix {
         data = new Double[rows][cols];
         for (int i = 0; i < rows; i ++) {
             for (int j = 0; j < cols; j ++) {
-                data[i][j] = 0;
+                data[i][j] = 0.0;
             }
         }
     }
