@@ -72,7 +72,7 @@ class Matrix {
         data = new Double[rows][cols];
         for (int i = 0; i < rows; i ++) {
             for (int j = 0; j < cols; j ++) {
-                data[i][j] = Math.floor(Math.random() * 10);
+                data[i][j] = 0;
             }
         }
     }
@@ -88,6 +88,17 @@ class Matrix {
         return matrix;
     }
 
+    public Matrix escalarMultiply(Matrix A, double B) {
+        matrix = new Matrix(A.rows, A.cols);
+
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < A.cols; j++) {
+                matrix.data[i][j] = A.data[i][j] * B;
+            }
+        }
+        return matrix;
+    }
+
 
     public Matrix add(Matrix A, Matrix B) {
         matrix = new Matrix(A.rows, A.cols);
@@ -95,6 +106,17 @@ class Matrix {
         for (int i = 0; i < A.rows; i++) {
             for (int j = 0; j < B.cols; j++) {
                 matrix.data[i][j] = A.data[i][j] + B.data[i][j];
+            }
+        }
+        return matrix;
+    }
+
+    public Matrix subtract(Matrix A, Matrix B) {
+        matrix = new Matrix(A.rows, A.cols);
+
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < B.cols; j++) {
+                matrix.data[i][j] = A.data[i][j] - B.data[i][j];
             }
         }
         return matrix;
@@ -128,6 +150,8 @@ class Matrix {
         }
     }
 
+    // STATICS:
+
     public static Matrix arrayToMatrix(Double[] A) {
         Matrix amatrix = new Matrix(A.length, 1);
         for (int i = 0; i < amatrix.data.length; i ++) {
@@ -135,4 +159,15 @@ class Matrix {
         }
         return amatrix;
     }
+
+    public static Matrix transposeMatrix(Matrix A) {
+        Matrix tm = new Matrix(A.rows, A.cols);
+        for (int i = 0; i < A.rows; i ++) {
+            for (int j = 0; j < A.cols; j ++) {
+                tm.data[i][j] = A.data[j][i];
+            }
+        }
+        return tm;
+    }
+
 }
