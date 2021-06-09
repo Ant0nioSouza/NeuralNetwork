@@ -5,7 +5,7 @@ public class NeuralNetwork {
     int hiddenNodes;
     int outputNodes;
 
-    Matrix biasIH, biasHO, weigthsIH, weigthsHO;
+    Matrix biasIH, biasHO, weigthsIH, weigthsHO, input;
 
    public NeuralNetwork(int inputNodes, int hiddenNodes, int outputNodes) {
         this.inputNodes = inputNodes;
@@ -22,11 +22,36 @@ public class NeuralNetwork {
         weigthsHO = new Matrix (outputNodes, hiddenNodes);
         weigthsHO.randomize();
    }
+
+    public void FeedForward(Matrix input) {
+       if (input.data.length != inputNodes) {
+            System.out.println("Data error adjust input nodes!");
+            return;
+       }
+   
+       this.input = input;
+
+       Matrix hidden = weigthsIH.multiply(weigthsIH, input);
+       hidden = hidden.add(hidden, biasIH);
+       sigmoid(hidden);
+    }
+
+    private void sigmoid(Matrix x) {
+        for (int i = 0; i < x.data.length; i ++) {
+            for (int j = 0; j < x.data[0].length; j ++) {
+                System.out.println("BEFORE Sigmoid -> " + x.data[i][j]);
+                x.data[i][j] =  1 / (1 + Math.exp(-x.data[i][j]));
+                System.out.println("AFTER Sigmoid -> " + x.data[i][j]);
+                
+            }
+        }
+    }
+
 }
 
 class Matrix {
     private int rows, cols;
-    private  Double[][] data;
+    protected  Double[][] data;
     private  Matrix matrix;
 
 
@@ -45,8 +70,9 @@ class Matrix {
 
     public Matrix add(Matrix A, Matrix B) {
         matrix = new Matrix(A.rows, A.cols);
-        for (int i = 0; i < A.cols; i++) {
-            for (int j = 0; j < B.rows; j++) {
+        
+        for (int i = 0; i < A.rows; i++) {
+            for (int j = 0; j < B.cols; j++) {
                 matrix.data[i][j] = A.data[i][j] + B.data[i][j];
             }
         }
@@ -81,4 +107,11 @@ class Matrix {
         }
     }
 
+    public static Matrix arrayToMatrix(Double[] A) {
+        Matrix amatrix = new Matrix(A.length, 1);
+        for (int i = 0; i < amatrix.data.length; i ++) {
+            amatrix.data[i][0] = A[i];
+        }
+        return amatrix;
+    }
 }
