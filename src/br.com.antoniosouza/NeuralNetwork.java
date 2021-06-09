@@ -28,12 +28,21 @@ public class NeuralNetwork {
             System.out.println("Data error adjust input nodes!");
             return;
        }
-   
+       
        this.input = input;
+
+
+       // INPUT -> HIDDEN
 
        Matrix hidden = weigthsIH.multiply(weigthsIH, input);
        hidden = hidden.add(hidden, biasIH);
        sigmoid(hidden);
+
+       // HIDDEN -> OUTPUT
+
+       Matrix output = weigthsHO.multiply(weigthsHO, hidden);
+       output = output.add(output, biasHO);
+       sigmoid(output);
     }
 
     private void sigmoid(Matrix x) {
@@ -70,7 +79,7 @@ class Matrix {
 
     public Matrix add(Matrix A, Matrix B) {
         matrix = new Matrix(A.rows, A.cols);
-        
+
         for (int i = 0; i < A.rows; i++) {
             for (int j = 0; j < B.cols; j++) {
                 matrix.data[i][j] = A.data[i][j] + B.data[i][j];
