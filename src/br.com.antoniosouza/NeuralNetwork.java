@@ -1,9 +1,11 @@
+import java.time.YearMonth;
 import java.util.function.Function;
 
 public class NeuralNetwork {
     int inputNodes;
     int hiddenNodes;
     int outputNodes;
+    double learningRate = 0.1;
 
     Matrix biasIH, biasHO, weigthsIH, weigthsHO, input;
 
@@ -23,11 +25,11 @@ public class NeuralNetwork {
         weigthsHO.randomize();
    }
 
-    public void train() {
-        if (input.data.length != inputNodes) {
-            System.out.println("Data error adjust input nodes!");
+    public void train(Matrix input, Matrix expected) {
+        /*if (input.data.length != inputNodes || expected.data.length != outputNodes) {
+            System.out.println("Data error adjust nodes!");
             return;
-       }
+       }*/
        
        this.input = input;
 
@@ -43,17 +45,46 @@ public class NeuralNetwork {
        Matrix output = weigthsHO.multiply(weigthsHO, hidden);
        output = output.add(output, biasHO);
        sigmoid(output);
+
+
+       // BACKPROPAGATION
+
+       // OUTPUT -> HIDDEN
+       Matrix outputError = expected.subtract(expected, input);
+       Matrix dOutput = dSigmoid(output);
+       Matrix gradient = dOutput.hadamard(outputError, dOutput);
+       Matrix hiddenT = Matrix.transposeMatrix(hidden);
+
+       gradient = gradient.escalarMultiply(gradient, learningRate);
+
+       Matrix weigthsHOD = gradient.multiply(gradient, hiddenT);
+       weigthsHO = weigthsHOD.add(weigthsHO, weigthsHOD);
+
+       // HIDDEN -> INPUT
+
+       
+       
     }
+
 
     private void sigmoid(Matrix x) {
         for (int i = 0; i < x.data.length; i ++) {
             for (int j = 0; j < x.data[0].length; j ++) {
-                System.out.println("BEFORE Sigmoid -> " + x.data[i][j]);
                 x.data[i][j] =  1 / (1 + Math.exp(-x.data[i][j]));
-                System.out.println("AFTER Sigmoid -> " + x.data[i][j]);
                 
             }
         }
+    }
+
+    private Matrix dSigmoid(Matrix x) {
+        Matrix ds = new Matrix(x.data.length, x.data[0].length);
+        for (int i = 0; i < x.data.length; i ++) {
+            for (int j = 0; j < x.data[0].length; j ++) {
+                ds.data[i][j] = x.data[i][j] * (1 - x.data[i][j]);
+                System.out.println(ds.data[i][j]);
+            }
+        }
+        return ds;
     }
 
 }
@@ -113,10 +144,12 @@ class Matrix {
 
     public Matrix subtract(Matrix A, Matrix B) {
         matrix = new Matrix(A.rows, A.cols);
-
-        for (int i = 0; i < A.rows; i++) {
-            for (int j = 0; j < B.cols; j++) {
+        System.out.println("B length: " + B.data.length + " -> " + B.data[0].length);
+        System.out.println("A length: " + A.data.length + " -> " + A.data[0].length);
+        for (int i = 0; i < A.data.length; i++) {
+            for (int j = 0; j < A.data[0].length; j++) {
                 matrix.data[i][j] = A.data[i][j] - B.data[i][j];
+                //System.out.println(matrix.data[i][j] + " | -> | " + A.data[i][j] + " | " + B.data[i][j]);
             }
         }
         return matrix;
@@ -161,9 +194,9 @@ class Matrix {
     }
 
     public static Matrix transposeMatrix(Matrix A) {
-        Matrix tm = new Matrix(A.rows, A.cols);
-        for (int i = 0; i < A.rows; i ++) {
-            for (int j = 0; j < A.cols; j ++) {
+        Matrix tm = new Matrix(A.cols, A.rows);
+        for (int i = 0; i < tm.data.length; i ++) {
+            for (int j = 0; j < tm.data[0].length; j ++) {
                 tm.data[i][j] = A.data[j][i];
             }
         }
