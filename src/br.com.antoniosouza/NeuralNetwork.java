@@ -5,7 +5,7 @@ public class NeuralNetwork {
     int inputNodes;
     int hiddenNodes;
     int outputNodes;
-    double learningRate = 0.1;
+    double learningRate = 0.4;
 
     Matrix biasIH, biasHO, weigthsIH, weigthsHO, input;
 
@@ -26,10 +26,10 @@ public class NeuralNetwork {
    }
 
     public void train(Matrix input, Matrix expected) {
-        /*if (input.data.length != inputNodes || expected.data.length != outputNodes) {
+        if (input.data.length != inputNodes || expected.data.length != outputNodes) {
             System.out.println("Data error adjust nodes!");
             return;
-       }*/
+       }
        
        this.input = input;
 
@@ -50,20 +50,62 @@ public class NeuralNetwork {
        // BACKPROPAGATION
 
        // OUTPUT -> HIDDEN
-       Matrix outputError = expected.subtract(expected, input);
+       Matrix outputError = expected.subtract(expected, output);
        Matrix dOutput = dSigmoid(output);
-       Matrix gradient = dOutput.hadamard(outputError, dOutput);
+       Matrix gradient = dOutput.hadamard(dOutput, outputError);
        Matrix hiddenT = Matrix.transposeMatrix(hidden);
 
        gradient = gradient.escalarMultiply(gradient, learningRate);
+
+       // ADJUST BIAS OUTPUT -> HIDDEN
+       biasHO = biasHO.add(biasHO, gradient);
 
        Matrix weigthsHOD = gradient.multiply(gradient, hiddenT);
        weigthsHO = weigthsHOD.add(weigthsHO, weigthsHOD);
 
        // HIDDEN -> INPUT
+       
+       Matrix weigthsHOT = Matrix.transposeMatrix(weigthsHO);
+       Matrix hiddenError = weigthsHOT.multiply(weigthsHOT, outputError);
+       Matrix dHidden = dSigmoid(hidden);
+       Matrix inputT = Matrix.transposeMatrix(input);
 
-       
-       
+       Matrix hiddenGradient = dHidden.hadamard(hiddenError, dHidden);
+       hiddenGradient = hiddenGradient.escalarMultiply(hiddenGradient, learningRate);
+
+       // ADJUST BIAS HIDDEN -> INPUT
+       biasIH = biasIH.add(biasIH, hiddenGradient);
+
+       Matrix weigthsIHD = hiddenGradient.multiply(hiddenGradient, inputT);
+
+       weigthsIH = weigthsIHD.add(weigthsIH, weigthsIHD);
+
+       for (int i = 0; i < outputError.data.length; i ++) {
+        for (int j = 0; j < outputError.data[0].length; j ++) {
+         System.out.println("Erro OUTPUT -> " + outputError.data[i][j]);
+        }
+    }
+    }
+
+    public Double[] predict(Matrix input) {
+
+        this.input = input;
+
+
+       // INPUT -> HIDDEN
+
+       Matrix hidden = weigthsIH.multiply(weigthsIH, input);
+       hidden = hidden.add(hidden, biasIH);
+       sigmoid(hidden);
+
+       // HIDDEN -> OUTPUT
+
+       Matrix output = weigthsHO.multiply(weigthsHO, hidden);
+       output = output.add(output, biasHO);
+       sigmoid(output);
+       System.out.println("OUTPUT -> " + output.data[0][0]);
+
+       return Matrix.matrixToArray(output);
     }
 
 
@@ -81,7 +123,6 @@ public class NeuralNetwork {
         for (int i = 0; i < x.data.length; i ++) {
             for (int j = 0; j < x.data[0].length; j ++) {
                 ds.data[i][j] = x.data[i][j] * (1 - x.data[i][j]);
-                System.out.println(ds.data[i][j]);
             }
         }
         return ds;
@@ -144,8 +185,6 @@ class Matrix {
 
     public Matrix subtract(Matrix A, Matrix B) {
         matrix = new Matrix(A.rows, A.cols);
-        System.out.println("B length: " + B.data.length + " -> " + B.data[0].length);
-        System.out.println("A length: " + A.data.length + " -> " + A.data[0].length);
         for (int i = 0; i < A.data.length; i++) {
             for (int j = 0; j < A.data[0].length; j++) {
                 matrix.data[i][j] = A.data[i][j] - B.data[i][j];
@@ -191,6 +230,14 @@ class Matrix {
             amatrix.data[i][0] = A[i];
         }
         return amatrix;
+    }
+
+    public static Double[] matrixToArray(Matrix A) {
+        Double[] arr = new Double[A.data.length];
+        for (int i = 0; i < A.data.length; i ++) {
+            arr[0] = A.data[i][0];
+        }
+        return arr;
     }
 
     public static Matrix transposeMatrix(Matrix A) {
