@@ -1,11 +1,12 @@
 import java.time.YearMonth;
+import java.util.Random;
 import java.util.function.Function;
 
 public class NeuralNetwork {
     int inputNodes;
     int hiddenNodes;
     int outputNodes;
-    double learningRate = 0.4;
+    double learningRate = 2;
 
     Matrix biasIH, biasHO, weigthsIH, weigthsHO, input;
 
@@ -25,14 +26,13 @@ public class NeuralNetwork {
         weigthsHO.randomize();
    }
 
-    public void train(Matrix input, Matrix expected) {
+    public Double[] train(Matrix input, Matrix expected) {
         if (input.data.length != inputNodes || expected.data.length != outputNodes) {
             System.out.println("Data error adjust nodes!");
-            return;
+            return null;
        }
        
        this.input = input;
-
 
        // INPUT -> HIDDEN
 
@@ -82,10 +82,11 @@ public class NeuralNetwork {
 
        for (int i = 0; i < outputError.data.length; i ++) {
         for (int j = 0; j < outputError.data[0].length; j ++) {
-         System.out.println("Erro OUTPUT -> " + outputError.data[i][j]);
+         //System.out.println("Erro OUTPUT -> " + outputError.data[i][j] + " | \n" + "Output -> " + output.data[i][j] + " | ");
         }
     }
-    }
+    return Matrix.matrixToArray(output);
+}
 
     public Double[] predict(Matrix input) {
 
@@ -215,9 +216,10 @@ class Matrix {
     }
 
     public void randomize() {
+        Random r = new Random();
         for (int i = 0; i < this.data.length; i ++) {
             for (int j = 0; j < this.data[0].length; j ++) {
-                this.data[i][j] = Math.random();
+                this.data[i][j] = -1 + (1 - -1) * r.nextDouble();
             }
         }
     }
@@ -235,7 +237,7 @@ class Matrix {
     public static Double[] matrixToArray(Matrix A) {
         Double[] arr = new Double[A.data.length];
         for (int i = 0; i < A.data.length; i ++) {
-            arr[0] = A.data[i][0];
+            arr[i] = A.data[i][0];
         }
         return arr;
     }
